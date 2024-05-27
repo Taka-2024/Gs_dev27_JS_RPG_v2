@@ -4,7 +4,7 @@
 
 ## 1.課題番号-プロダクト名
 
-  - LEVELING RPG　ver0.01
+  - LEVELING RPG　ver0.02
 
 
 ## 2.課題内容（どんな作品か）
