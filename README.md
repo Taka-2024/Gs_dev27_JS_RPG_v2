@@ -14,7 +14,7 @@
 
 ## 3.DEMO
 
-- https://taka-2024.github.io/Gs_dev27_JS_RPG/
+- https://taka-2024.github.io/Gs_dev27_JS_RPG_v2
 
 
 ## 4.作ったアプリケーション用のIDまたはPasswordがある場合
