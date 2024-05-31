@@ -4,8 +4,8 @@ const       CHRHEIGHT       = 9;                                //キャラの�
 const       CHRWIDTH        = 8;                                //キャラの幅
 const       FONT            ="12px monospace";                  //使用フォント
 const       FONTSTYLE       ="#ffffff";                         //文字の色
-const       HEIGHT          = 120;                              //仮想画面高さ 120/8=15マス
-const       WIDTH           = 128;                              //仮想画面幅　128/8=16マス
+const       HEIGHT          = 180;                              //仮想画面高さ 120/8=15マス
+const       WIDTH           = 240;                              //仮想画面幅　128/8=16マス
 const       INTERVAL        = 33;                               //フレーム呼び出し間隔    
 const       START_HP        = 20;                               //開始HP
 const       START_X         = 15;                               //開始時のX座標
@@ -18,7 +18,7 @@ const       MAP_HEIGHT      = 32;                               //マップ高�
 const       SCROLL          = 1;                                //スクロール速度
 const       WNDSTYLE        ="rgba( 0, 0, 0, 0.75)";            //ウィンドウの色
 
-const       gKey  = new Uint8Array(0x100);                      //キー入力バッファ
+
 
 let         gAngle          = 0;                                            //プレイヤーの向き
 let         gEx             = 0;                                            //プレイヤーの経験値
@@ -390,10 +390,10 @@ function TickField()
     }
 
     if( gMoveX !=0 || gMoveY != 0 || gMessage1 ){}                                              //移動中またはメッセージ表示中の場合
-    else if( gKey[ 37 ]) {gAngle = 1; gMoveX = - TILESIZE;}     //左
-    else if( gKey[ 38 ]) {gAngle = 3; gMoveY = - TILESIZE;}     //上
-    else if( gKey[ 39 ]) {gAngle = 2; gMoveX =   TILESIZE;}     //右
-    else if( gKey[ 40 ]) {gAngle = 0; gMoveY =   TILESIZE;}     //下
+    else if( TUG.mKey[ 37 ]) {gAngle = 1; gMoveX = - TILESIZE;}     //左
+    else if( TUG.mKey[ 38 ]) {gAngle = 3; gMoveY = - TILESIZE;}     //上
+    else if( TUG.mKey[ 39 ]) {gAngle = 2; gMoveX =   TILESIZE;}     //右
+    else if( TUG.mKey[ 40 ]) {gAngle = 0; gMoveY =   TILESIZE;}     //下
 
     //移動後のタイル座標判定
     let     mx = Math.floor( (gPlayerX + gMoveX) / TILESIZE );                                  //タイル座標X
@@ -492,27 +492,19 @@ TUG.onPaint =function()
 
 
 //タイマーイベント発生時の処理
-TUG.onTimer = function( d )
+TUG.onTimer = function()
 {
     if ( gMessage1){
         return;
     }
     
-    while ( d--){
-          gFrame++;                                                                           //内部カウンタの増加
-          TickField();                                                                        //フィールド進行処理
-    }
+    gFrame++;                                                                           //内部カウンタの増加
+    TickField();                                                                        //フィールド進行処理
 }
 
-//キー入力（DOWN）イベント
-window.onkeydown = function( ev )                                                           //キーを押したときの処理
+
+TUG.onKeyDown = function ( c )
 {
-    let     c = ev.keyCode;                                                                 //キーコードをイベント時に取得 ref:https://developer.mozilla.org/ja/docs/Web/API/KeyboardEvent/keyCode
-    
-    if( gKey[ c ] != 0){                                                                    //既にキーを押している場合
-        return;
-    }
-    gKey[ c ] = 1;
 
     if( c == 83 ){                                                                          //Sキーの場合
         localStorage.setItem("X座標", gPlayerX.toString())
@@ -604,11 +596,6 @@ window.onkeydown = function( ev )                                               
 }
 
 
-//キー入力（UP）イベント
-window.onkeyup = function( ev )                                                             //キーを離したときの処理
-{
-    gKey [ ev.keyCode ]  =0;
-}
 
 
 //起動イベント

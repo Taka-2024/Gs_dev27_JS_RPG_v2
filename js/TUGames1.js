@@ -6,12 +6,35 @@ TUG.BG ={};
 
 TUG.mCurrentFrame  = 0;                 //経過フレーム数
 TUG.mFPS = 60;                          //フレームレート
-TUG.mHeight = 120;                      //仮想画面高さ
-TUG.mWidth = 128;                       //仮想画面幅
+TUG.mHeight = 180;                      //仮想画面高さ
+TUG.mWidth = 240;                       //仮想画面幅
 TUG.mSmooth = 0;                        //補間処理
 
+TUG.onKeyDown = function( c ) {}
 TUG.onTimer = function(){}
 TUG.onPaint = function(){}
+
+TUG.mKey  = new Uint8Array(0x100);                      //キー入力バッファ
+
+//キー入力（DOWN）イベント
+window.onkeydown = function( ev )                                                           //キーを押したときの処理
+{
+    let     c = ev.keyCode;                                                                 //キーコードをイベント時に取得 ref:https://developer.mozilla.org/ja/docs/Web/API/KeyboardEvent/keyCode
+    
+    if( TUG.mKey[ c ] != 0){                                                                    //既にキーを押している場合
+        return;
+    }
+    TUG.mKey[ c ] = 1;
+
+    TUG.onKeyDown( c );
+}
+
+//キー入力（UP）イベント
+window.onkeyup = function( ev )                                                             //キーを離したときの処理
+{
+    TUG.mKey [ ev.keyCode ]  =0;
+}
+ 
 
 TUG.createCanvas =function( width, height)
 {
@@ -88,10 +111,12 @@ TUG.wmTimer = function()
 
     let     d = Math.floor(( performance.now() - TUG.mCurrentStart ) * TUG.mFPS / 1000) - TUG.mCurrentFrame ;
 
-    if  (d > 0){
-        TUG.onTimer( d );
-        TUG.mCurrentFrame += d;
-        TUG.wmPaint(); 
+    while( d-- ){
+        TUG.onTimer();
+        TUG.mCurrentFrame++ ;
+        if ( d == 0 ){
+            TUG.wmPaint(); 
+        }
     }
     requestAnimationFrame( TUG.wmTimer);
 }
@@ -99,30 +124,32 @@ TUG.wmTimer = function()
 TUG.BG.draw =function()
 {
 
-/*
-    let         mx = Math.floor ( TUG.BG.mX / TUG.BG.mWidth );                                                 //プレイヤーのタイル座標X
-    let         my = Math.floor ( TUG.BG.mY / TUG.BG.mHeight );                                                 //プレイヤーのタイル座標Y
-    
-    let       SCR_WIDTH       = 8;                                //画面タイルサイズの半分の幅
-    let       SCR_HEIGHT      = 8;                                //画面タイルサイズの半分の高さ
-
-    for( let dy = -SCR_HEIGHT; dy <= SCR_HEIGHT ; dy++ ){
-        let     ty = my +dy;                                                                            //タイル座標Y
-        let     py = ( ty + TUG.BG.mRow )  % TUG.BG.mRow;                                                 //ループ後タイル座標Y
-        for (let dx = -SCR_WIDTH ; dx <= SCR_WIDTH; dx++){
-            let     tx = mx + dx;                                                                       //タイル座標X
-            let     px = ( tx + TUG.BG.mColumn  )  % TUG.BG.mColumn;                                              //ループ後タイル座標X
-            DrawTile( TUG.BG.mG, 
-                    tx * TUG.BG.mWidth + TUG.mWidth  / 2 -TUG.BG.mX,
-                    ty * TUG.BG.mHeight + TUG.mHeight / 2 -TUG.BG.mY ,                       
-                    // gMap[ py * TUG.BG.mColumn + px ]);              
-                    TUG.BG.mData[ TUG.BG.getIndex ( px, py,) ]);              
+    let     sy = TUG.BG.mY;
+    for( let y = 0; y < TUG.mHeight;){
+        while( sy >= 0 ){
+            sy -= TUG.BG.mCanvas.height;
         }
-    }
+        while( sy < 0 ){
+            sy += TUG.BG.mCanvas.height;
+        }
+        let     h = Math.min (TUG.mHeight , TUG.BG.mCanvas.height -sy );
+        let     sx = TUG.BG.mX;
 
-*/
-
-    TUG.GR.mG.drawImage( TUG.BG.mCanvas, -TUG.BG.mX, -TUG.BG.mY);
+        for (let x= 0; x < TUG.mWidth; ){
+            while( sx >= 0 ){
+                sx -= TUG.BG.mCanvas.width;
+            }
+            while( sx < 0 ){
+                sx += TUG.BG.mCanvas.width;
+            }
+            let     w = Math.min ( TUG.mWidth , TUG.BG.mCanvas.width -sx );
+            TUG.GR.mG.drawImage( TUG.BG.mCanvas, sx, sy, w, h, x, y, w, h);
+            sx += w;
+            x += w;    
+        }
+        sy += h;
+        y += h;
+    }    
 }
 
 TUG.BG.getIndex = function( x, y) 
